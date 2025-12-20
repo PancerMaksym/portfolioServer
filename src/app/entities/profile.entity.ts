@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql'
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { HtmlPart } from './html-part.model'
+import { User } from './users.entity'
 
 @ObjectType()
 @Entity()
@@ -29,7 +30,6 @@ export class Profile {
   @Column('jsonb', { nullable: true })
   html_parts?: { id: string; content: string }[]
 
-  @Field(() => Number)
-  @Column()
-  author?: number
+  @OneToOne(() => User, (user) => user.profile)
+  author: User;
 }

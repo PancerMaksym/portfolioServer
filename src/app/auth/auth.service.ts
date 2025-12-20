@@ -6,7 +6,8 @@ import { CreateUserInput } from '../user/dto/createUser.input';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Response } from 'express'
+import { Response } from 'express';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,7 +16,7 @@ export class AuthService {
     private readonly mailerService: MailerService
   ) {}
 
-  async login(res: Response, userInput: CreateUserInput) {
+  async login(userInput: CreateUserInput) {
     const user = await this.userRepo.findOneBy({ email: userInput.email });
     if (!user) {
       throw new Error('Wrong data');
@@ -25,41 +26,49 @@ export class AuthService {
       userInput.password,
       user.password
     );
+
     if (!isPasswordValid) {
       throw new Error('Wrong data');
     }
 
     const payload = { id: user.id, email: user.email };
-    const token = await this.jwtService.signAsync(payload);
-    res.cookie("access_token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict"
-    });
-    return "Success";
+
+    return await this.jwtService.signAsync(payload);
   }
 
   async register(createUserInput: CreateUserInput) {
-    console.log('Input: ', createUserInput);
-    const userCheck = await this.userRepo.findOneBy({
-      email: createUserInput.email,
-    });
-    if (userCheck) {
-      throw new Error('Email already registered');
+    try {
+      const userCheck = await this.userRepo.findOneBy({
+        email: createUserInput.email,
+      });
+      if (userCheck) {
+        throw new Error('Email already registered');
+      }
+
+      const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
+      const hashedPassword = await bcrypt.hash(
+        createUserInput.password,
+        saltRounds
+      );
+
+      const user = this.userRepo.create({
+        ...createUserInput,
+        password: hashedPassword,
+        profile: {
+          photo: '',
+          name: '',
+          places: [],
+          tags: [],
+          html_parts: [],
+        },
+      });
+
+      await this.userRepo.save(user);
+
+      return "Success";
+    } catch (error) {
+      throw new Error(error.message);
     }
-    const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
-    const hashedPassword = await bcrypt.hash(
-      createUserInput.password,
-      saltRounds
-    );
-
-    const newUser = this.userRepo.create({
-      ...createUserInput,
-      password: hashedPassword,
-      profile_id: 0,
-    });
-
-    return await this.userRepo.save(newUser);
   }
 
   async updateUser(token: string, password: string) {
@@ -69,12 +78,15 @@ export class AuthService {
     user.password = hashedPassword;
     await this.userRepo.save(user);
 
-    return "Success"
+    return 'Success';
   }
 
   async sendEmail(email: string) {
     try {
-      const token = await this.jwtService.signAsync({email}, { expiresIn: '15m' });
+      const token = await this.jwtService.signAsync(
+        { email },
+        { expiresIn: '15m' }
+      );
 
       await this.mailerService.sendMail({
         to: email,
@@ -89,5 +101,4 @@ export class AuthService {
       throw new Error('Email sending failed');
     }
   }
-
 }

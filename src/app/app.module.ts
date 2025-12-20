@@ -3,11 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloDriver } from '@nestjs/apollo';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import dbConfig from "./config/db.config"
+import {PhotoModule} from './photo/photo.module'
+import dbConfig from './config/db.config';
 
 @Module({
   imports: [
@@ -20,14 +21,20 @@ import dbConfig from "./config/db.config"
     TypeOrmModule.forRootAsync({
       useFactory: dbConfig,
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: true,
       debug: true,
       playground: true,
+      context: ({ req, res }) => ({ req, res }),
+      cors: {
+        credentials: true,
+        origin: true,
+      },
     }),
     UserModule,
     AuthModule,
+    PhotoModule,
   ],
 
   controllers: [AppController],

@@ -9,7 +9,6 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtAuthGuard } from './guard/jwt.auth.guard';
 import { Profile } from 'src/app/entities/profile.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 
 @Module({
   imports: [

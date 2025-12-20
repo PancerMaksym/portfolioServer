@@ -1,65 +1,88 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { ArrayContains, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/users.entity';
 import { UpdateProfileInput } from './dto/updateProfile.input';
 import { Profile } from '../entities/profile.entity';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(Profile) private readonly profileRepo: Repository<Profile>
+    @InjectRepository(Profile)
+    private readonly profileRepo: Repository<Profile>,
+    private readonly jwtService: JwtService
   ) {}
 
-  async findAll(first: number, cursor: number): Promise<Profile[]> {
-    return await this.profileRepo.find({
+  async findAll(first: number, cursor: number, tags: string[]): Promise<Profile[]> {
+    const users = await this.profileRepo.find({
+      where: {
+        tags: ArrayContains(tags)
+      },
       take: first,
       skip: cursor,
       order: { id: 'ASC' },
     });
+    return users;
   }
 
   async findOne(id: number): Promise<Profile> {
     return await this.profileRepo.findOneByOrFail({ id });
   }
 
-  async updateProfile(id: number, updateProfileInput: UpdateProfileInput): Promise<Profile> {
+  async updateProfile(
+    req: Request,
+    updateProfileInput: UpdateProfileInput
+  ): Promise<string> {
+    const token = req.cookies?.access_token;
+    if (!token) throw new Error('Token not found');
+
+    const decoded = this.jwtService.verify(token);
+    const id = decoded.id;
+
     const user = await this.userRepo.findOne({
       where: { id },
+      relations: ['profile'],
     });
 
     if (!user) throw new Error('User not found');
+    if (!user.profile) throw new Error('Profile not found');
 
-    if (user.profile_id) {
-      const profileId = await user.profile_id;
-      const profile = await this.profileRepo.findOne({
-        where: { id: profileId },
-      });
+    await this.profileRepo.update(user.profile.id, updateProfileInput);
 
-      Object.assign(profile, updateProfileInput);
-      await this.profileRepo.save(profile);
-      return profile;
-    } else {
-      const profile = this.profileRepo.create({
-        ...updateProfileInput,
-        author: user.id,
-      });
-      await this.profileRepo.save(profile);
-      user.profile_id = profile.id;
-      await this.userRepo.save(user);
-      return profile;
-    }
-
+    return 'Success';
   }
 
-  async getProfile(id: number): Promise<Profile> {
-    return await this.profileRepo.findOne({ where: { author: id } });
+  async getProfile(req: Request): Promise<Profile> {
+    try {
+      const token = req.cookies['access_token'];
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
+      const decoded = this.jwtService.verify(token);
+      const id = decoded.id;
+
+      const user = await this.userRepo.findOne({
+        where: { id },
+        relations: ['profile'],
+      });
+
+      if (!user) throw new Error('User not found');
+
+      if (!user.profile) throw new Error('Profile not found');
+
+      return user.profile;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async getTags() {
     const profiles = await this.profileRepo.find({
-      select: ['tags'],
+      select: { tags: true },
     });
 
     const tags = profiles.flatMap((p) => p.tags);

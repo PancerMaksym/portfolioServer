@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { PhotoService } from './photo.service';
-import { PhotoController } from './photo.controller';
+import { PhotoProvider } from './photo.provider';
+import { PhotoConstroller } from './photo.controller';
 
 @Module({
-  providers: [PhotoService],
-  controllers: [PhotoController]
+  providers: [PhotoService, PhotoProvider],
+  controllers: [PhotoConstroller]
 })
-export class UserModule {}
+
+export class PhotoModule {}

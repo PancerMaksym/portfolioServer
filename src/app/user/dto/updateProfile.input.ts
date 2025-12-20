@@ -25,10 +25,10 @@ export class UpdateProfileInput {
   @IsArray()
   tags?: string[];
 
-  @Field(() => [HtmlPartInput], { nullable: true })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => HtmlPartInput)
-  html_part?: HtmlPartInput[];
+  @Field(() => [HtmlPartInput], { nullable: true })
+  html_parts?: HtmlPartInput[];
 }

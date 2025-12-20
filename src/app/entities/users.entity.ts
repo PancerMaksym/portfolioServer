@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType, HideField } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Profile } from './profile.entity';
 
 @ObjectType()
 @Entity()
@@ -16,7 +17,11 @@ export class User {
   @Column()
   password!: string;
 
-  @Field(() => Int, { nullable: true })
-  @Column()
-  profile_id?: number;
+  @Field(() => Profile, { nullable: true })
+  @OneToOne(() => Profile, (profile) => profile.author, {
+    cascade: true,
+    nullable: true,
+  })
+  @JoinColumn()
+  profile?: Profile;
 }

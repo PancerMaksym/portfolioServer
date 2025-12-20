@@ -1,33 +1,27 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
 @Injectable()
 export class UserGuard implements CanActivate {
-  constructor(private jwtService: JwtService, private configService: ConfigService) {}
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService
+  ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = req.cookie.access_token;
-    if (!token) {
-      throw new UnauthorizedException();
-    }
-    
+  async canActivate(ctx: ExecutionContext): Promise<boolean> {
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-      });
-
-      req['user'] = payload;
-    } catch {
-      throw new UnauthorizedException();
+      const request = ctx.switchToHttp().getRequest();
+      return true;
+    } catch (error) {
+      console.error('auth error');
     }
-    return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }
