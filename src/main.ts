@@ -15,7 +15,7 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-  await app.listen(port, hostname);
+  await app.listen(port);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
   );
