@@ -2847,15 +2847,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cookie-parser@npm:^1.4.10":
-  version: 1.4.10
-  resolution: "@types/cookie-parser@npm:1.4.10"
-  peerDependencies:
-    "@types/express": "*"
-  checksum: 10c0/5e2c0e0fd9cb47eae5bd7cd73768b36b7711594cbd07969a03f015118d57b832291726d9cb7bd350c9e3a1707e5e2f082e7e0635e8ce335474897ab940d55771
-  languageName: node
-  linkType: hard
-
 "@types/cookies@npm:*":
   version: 0.9.2
   resolution: "@types/cookies@npm:0.9.2"
@@ -3754,7 +3745,6 @@ __metadata:
     "@supabase/supabase-js": "npm:^2.80.0"
     "@types/bcrypt": "npm:^6.0.0"
     "@types/buffer-to-stream": "npm:^1"
-    "@types/cookie-parser": "npm:^1.4.10"
     "@types/express": "npm:^5.0.6"
     "@types/graphql-upload": "npm:^17"
     "@types/multer": "npm:^2.0.0"

@@ -31,7 +31,6 @@
     "@nestjs/typeorm": "^11.0.0",
     "@supabase/supabase-js": "^2.80.0",
     "@types/bcrypt": "^6.0.0",
-    "@types/cookie-parser": "^1.4.10",
     "bcrypt": "^6.0.0",
     "buffer-to-stream": "^1.0.0",
     "class-transformer": "^0.5.1",
