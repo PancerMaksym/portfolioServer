@@ -24,7 +24,7 @@ import dbConfig from './config/db.config';
     GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      debug: true,
+      debug: false,
       playground: false,
       context: ({ req, res }) => ({ req, res }),
       cors: {
@@ -33,7 +33,6 @@ import dbConfig from './config/db.config';
       },
     }),
     UserModule,
-    AuthModule,
     PhotoModule,
   ],
 
