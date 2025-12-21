@@ -25,7 +25,7 @@ import dbConfig from './config/db.config';
       driver: ApolloDriver,
       autoSchemaFile: true,
       debug: true,
-      playground: true,
+      playground: false,
       context: ({ req, res }) => ({ req, res }),
       cors: {
         credentials: true,

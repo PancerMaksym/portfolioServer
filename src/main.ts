@@ -10,7 +10,7 @@ async function bootstrap() {
   const port = 5000;
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: 'https://create-resume-wheat.vercel.app/',
     credentials: true,
   });
   app.use(cookieParser());

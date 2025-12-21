@@ -9,7 +9,5 @@ export default registerAs(
     type: 'postgres',
 
     entities: [path.join(__dirname, '..', '**/*.entity.{js,ts}')],
-
-    synchronize: true,
   }),
 );
