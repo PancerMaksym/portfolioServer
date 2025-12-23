@@ -27,10 +27,6 @@ import dbConfig from "./config/db.config";
       debug: false,
       playground: false,
       context: ({ req, res }) => ({ req, res }),
-      cors: {
-        origin: ["https://create-resume-wheat.vercel.app"],
-        credentials: true,
-      },
     }),
     UserModule,
     PhotoModule,
