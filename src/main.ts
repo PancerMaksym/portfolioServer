@@ -11,11 +11,11 @@ async function bootstrap() {
   const hostname = '0.0.0.0'
 
   app.enableCors({
-    origin: 'https://create-resume-wheat.vercel.app/',
-    credentials: true,
+    origin: ['https://create-resume-wheat.vercel.app'],
+    credentials: 'omit',
   });
   app.use(cookieParser());
-  await app.listen(port);
+  await app.listen(port, hostname);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
   );
