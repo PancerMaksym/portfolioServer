@@ -24,8 +24,8 @@ import dbConfig from "./config/db.config";
     GraphQLModule.forRoot({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      debug: false,
-      playground: false,
+      debug: true,
+      playground: true,
       context: ({ req, res }) => ({ req, res }),
     }),
     UserModule,

@@ -17,16 +17,7 @@ export class AuthResolver {
     @Args('createUserInput') userInput: CreateUserInput,
     @Context('res') res: Response,
   ) {
-    const token = await this.authService.login(userInput);
-
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-    });
-
-    return 'Success';
+    return await this.authService.login(userInput);
   }
 
   @Mutation(() => String)
@@ -40,17 +31,5 @@ export class AuthResolver {
   @Mutation(() => String)
   async sendEmail(@Args('email') email: string) {
     return await this.authService.sendEmail(email);
-  }
-
-  @Mutation(() => String)
-  async logout(@Context('res') res: Response) {
-    res.clearCookie('access_token', {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-    });
-
-    return 'Logged out';
   }
 }

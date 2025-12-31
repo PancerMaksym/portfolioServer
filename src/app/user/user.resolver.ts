@@ -32,12 +32,12 @@ export class UserResolver {
     @Context('req') req: Request,
     @Args('updateProfileInput') updateProfileInput: UpdateProfileInput
   ) {
-    return await this.userService.updateProfile(req, updateProfileInput);
+    return await this.userService.updateProfile(req.headers.authorization, updateProfileInput);
   }
 
   @Query(() => Profile)
   async getProfile(@Context('req') req: Request) {
-    const profile =  await this.userService.getProfile(req);
+    const profile =  await this.userService.getProfile(req.headers.authorization);
     return profile;
   }
 

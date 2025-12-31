@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { ArrayContains, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/users.entity';
-import { UpdateProfileInput } from './dto/updateProfile.input';
-import { Profile } from '../entities/profile.entity';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { Injectable } from "@nestjs/common";
+import { ArrayContains, Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "../entities/users.entity";
+import { UpdateProfileInput } from "./dto/updateProfile.input";
+import { Profile } from "../entities/profile.entity";
+import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
 
 @Injectable()
 export class UserService {
@@ -16,14 +16,18 @@ export class UserService {
     private readonly jwtService: JwtService
   ) {}
 
-  async findAll(first: number, cursor: number, tags: string[]): Promise<Profile[]> {
+  async findAll(
+    first: number,
+    cursor: number,
+    tags: string[]
+  ): Promise<Profile[]> {
     const users = await this.profileRepo.find({
       where: {
-        tags: ArrayContains(tags)
+        tags: ArrayContains(tags),
       },
       take: first,
       skip: cursor,
-      order: { id: 'ASC' },
+      order: { id: "ASC" },
     });
     return users;
   }
@@ -33,46 +37,45 @@ export class UserService {
   }
 
   async updateProfile(
-    req: Request,
+    token: string,
     updateProfileInput: UpdateProfileInput
   ): Promise<string> {
-    const token = req.cookies?.access_token;
-    if (!token) throw new Error('Token not found');
+    if (!token) throw new Error("Token not found");
 
     const decoded = this.jwtService.verify(token);
     const id = decoded.id;
 
     const user = await this.userRepo.findOne({
       where: { id },
-      relations: ['profile'],
+      relations: ["profile"],
     });
 
-    if (!user) throw new Error('User not found');
-    if (!user.profile) throw new Error('Profile not found');
+    if (!user) throw new Error("User not found");
+    if (!user.profile) throw new Error("Profile not found");
 
     await this.profileRepo.update(user.profile.id, updateProfileInput);
 
-    return 'Success';
+    return "Success";
   }
 
-  async getProfile(req: Request): Promise<Profile> {
+  async getProfile(token: string): Promise<Profile> {
     try {
-      const token = req.cookies['access_token'];
       if (!token) {
-        throw new Error('Token not found');
+        throw new Error("Token not found");
       }
-
-      const decoded = this.jwtService.verify(token);
+      const cleanToken = token
+        ?.split(" ")[1];
+      const decoded = this.jwtService.verify(cleanToken);
       const id = decoded.id;
 
       const user = await this.userRepo.findOne({
         where: { id },
-        relations: ['profile'],
+        relations: ["profile"],
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) throw new Error("User not found");
 
-      if (!user.profile) throw new Error('Profile not found');
+      if (!user.profile) throw new Error("Profile not found");
 
       return user.profile;
     } catch (error) {
